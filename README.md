@@ -1,12 +1,12 @@
-<img src="imgs/fig0.gif" width="200" />
-
-
 # Minimal Solvers for 3D Scan Alignment With Pairs of Intersecting Lines
 Andre Mateus<sup>1</sup>, Srikumar Ramalingam<sup>2</sup>, and Pedro Miraldo<sup>1</sup>
 
 <sup>1</sup>Instituto Superior Tecnico, Lisboa <sup>2</sup>Google Research, NY 
 <br />
 E-Mail: {andre.mateus,pedro.miraldo}@tecnico.ulisboa.pt
+
+
+<img src="imgs/fig0.gif" width="200" />
 
 This project provides minimal solvers for 3D registration using intersecting lines.
 
