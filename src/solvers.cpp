@@ -3,10 +3,12 @@
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 #include <Eigen/src/Core/util/DisableStupidWarnings.h>
+#include <unsupported/Eigen/Polynomials>
 
 #include <vector>
 #include <complex>
 #include <solvers.hpp>
+#include <utils.hpp>
 
 typedef Eigen::Matrix<float, 4, 4> Matrix4f;
 typedef Eigen::Matrix<float, 6, 6> Matrix6f;
@@ -33,6 +35,10 @@ vector<Matrix<floatPrec, 4,4>> getPredefinedTransformations1L1Q1P(Matrix<floatPr
 //
 template <typename floatPrec>
 vector<Matrix<floatPrec, 4,4>> getPredefinedTransformations3L1Q(Matrix<floatPrec, 4,1> P1, Matrix<floatPrec, 4,1> P1_B);
+//
+template <typename floatPrec>
+vector<Matrix<floatPrec, 4,4>> getPredefinedTransformations1M1Q(Matrix<floatPrec, 6,1> l1, Matrix<floatPrec, 6,1> l2);
+//
 template <typename floatPrec>
 vector<Matrix<floatPrec, Dynamic, 1>> genposeandscale_solvecoeffs(Matrix<floatPrec, Dynamic, Dynamic> B);
 template <typename floatPrec>
@@ -68,17 +74,20 @@ template void removeColumn<double>(Matrix<complex<double>, Dynamic, Dynamic> &ma
 template vector<Matrix<float, 4, 4>> solver2Q1L<float>(
 	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair);
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lCPair);
 template vector<Matrix<double, 4, 4>> solver2Q1L<double>(
 	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair);
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lCPair);
 
 template <typename floatPrec>
 vector<Matrix<floatPrec, 4, 4>> solver2Q1L(
 	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair)
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lCPair)
 {
 	// check input vectors size
 	if(ptPair.size() < 2 || lPair.size() < 1){
@@ -189,17 +198,20 @@ vector<Matrix<floatPrec, 4, 4>> solver2Q1L(
 template vector<Matrix<float, 4, 4>> solver1L1Q1P<float>(
 	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair);
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lCPair);
 template vector<Matrix<double, 4, 4>> solver1L1Q1P<double>(
 	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair);
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lCPair);
 
 template <typename floatPrec>
 vector<Matrix<floatPrec, 4, 4>> solver1L1Q1P(
 	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair)
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lCPair)
 {
 	// check input vectors size
 	if(ptPair.size() < 1 || lPair.size() < 1 || plPair.size() < 1){
@@ -309,22 +321,24 @@ vector<Matrix<floatPrec, 4, 4>> solver1L1Q1P(
 }
 
 
-
+// Solver for the case of 3 lines, and 1 point
 template vector<Matrix<float, 4, 4>> solver3L1Q<float>(
 	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair);
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lCPair);
 template vector<Matrix<double, 4, 4>> solver3L1Q<double>(
 	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair);
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lCPair);
 
 template <typename floatPrec>
 std::vector<Eigen::Matrix<floatPrec, 4, 4>> solver3L1Q(
 	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair
-	)
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lCPair)
 {
 	// check input vectors size
 	if(ptPair.size() < 1 || lPair.size() < 3){
@@ -515,23 +529,379 @@ std::vector<Eigen::Matrix<floatPrec, 4, 4>> solver3L1Q(
 	return out;
 }
 
+
+// Solver for the case of 3 line intersections and 1 point quadric intersection solver
+template vector<Matrix<float, 4, 4>> solver3L1Q_New<float>(
+	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lCPair);
+template vector<Matrix<double, 4, 4>> solver3L1Q_New<double>(
+	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lCPair);
+
+template <typename floatPrec>
+std::vector<Eigen::Matrix<floatPrec, 4, 4>> solver3L1Q_New(
+	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lCPair)
+{
+	// check input vectors size
+	if(ptPair.size() < 1 || lPair.size() < 3){
+		std::cerr << "Solver 3L1Q requires at least 1 point, and 3 line pairs!" << std::endl;
+		exit(-1);
+	}
+
+	// parse inputs
+	Eigen::Matrix<floatPrec, 4, 1> P1, P1_B, Q11, Q12, R11_B, R12_B, Q21, Q22, R21_B, R22_B, Q31, Q32, R31_B, R32_B;
+	P1 = ptPair[0].first; P1_B = ptPair[0].second;
+
+	Q11 = lPair[0].first.first; Q12 = lPair[0].first.second;
+	R11_B = lPair[0].second.first; R12_B = lPair[0].second.second;
+	Q21 = lPair[1].first.first; Q22 = lPair[1].first.second;
+	R21_B = lPair[1].second.first; R22_B = lPair[1].second.second;
+	Q31 = lPair[2].first.first; Q32 = lPair[2].first.second;
+	R31_B = lPair[2].second.first; R32_B = lPair[2].second.second;
+
+
+	// initialize the transformation matrix
+	vector<Matrix<floatPrec, 4,4>> out;
+
+	Matrix<floatPrec, 3,1> tP11, tP12, tP21, tP22, tP31, tP32, tQ11, tQ12, tQ21, tQ22, tQ31, tQ32;
+	// points first lines
+	tP11 = Q11.head(3) / Q11(3);
+	tP12 = Q12.head(3) / Q12(3);
+	tQ11 = R11_B.head(3) / R11_B(3);
+	tQ12 = R12_B.head(3) / R12_B(3);
+	// points second lines
+	tP21 = Q21.head(3) / Q21(3);
+	tP22 = Q22.head(3) / Q22(3);
+	tQ21 = R21_B.head(3) / R21_B(3);
+	tQ22 = R22_B.head(3) / R22_B(3);
+	// points third lines
+	tP31 = Q31.head(3) / Q31(3);
+	tP32 = Q32.head(3) / Q32(3);
+	tQ31 = R31_B.head(3) / R31_B(3);
+	tQ32 = R32_B.head(3) / R32_B(3);
+
+	// computing the plucker coordinates of the lines
+	// ref A
+	Matrix<floatPrec, 3,1> D1 = tP12 - tP11;
+	Matrix<floatPrec, 6,1> L1;
+	L1.head(3) = D1;
+	L1.tail(3) = tP12.cross(tP11);
+	L1 /= L1.head(3).norm();
+	Matrix<floatPrec, 3,1> D2 = tP22 - tP21;
+	Matrix<floatPrec, 6,1> L2;
+	L2.head(3) = D2;
+	L2.tail(3) = tP22.cross(tP21);
+	L2 /= L2.head(3).norm();
+	Matrix<floatPrec, 3,1> D3 = tP32 - tP31;
+	Matrix<floatPrec, 6,1> L3;
+	L3.head(3) = D3;
+	L3.tail(3) = tP32.cross(tP31);
+	L3 /= L3.head(3).norm();
+	// ref B
+	D1 = tQ12 - tQ11;
+	Matrix<floatPrec, 6,1> M1;
+	M1.head(3) = D1;
+	M1.tail(3) = tQ12.cross(tQ11);
+	M1 /= M1.head(3).norm();
+	D2 = tQ22 - tQ21;
+	Matrix<floatPrec, 6,1> M2;
+	M2.head(3) = D2;
+	M2.tail(3) = tQ22.cross(tQ21);
+	M2 /= M2.head(3).norm();
+	D3 = tQ32 - tQ31;
+	Matrix<floatPrec, 6,1> M3;
+	M3.head(3) = D3;
+	M3.tail(3) = tQ32.cross(tQ31);
+	M3 /= M3.head(3).norm();
+
+	// compute predefined transformations
+	vector<Matrix<floatPrec, 4,4>> predTrans = getPredefinedTransformations3L1Q(P1, P1_B);
+	Matrix<floatPrec, 4,4> TV = predTrans.back();
+	predTrans.pop_back();
+	Matrix<floatPrec, 4,4> TU = predTrans.back();
+	predTrans.pop_back();
+
+	// transform lines to predefined frames
+	Matrix<floatPrec, 6,6> transLineU, transLineV;
+	transLineU.setZero();
+	transLineV.setZero();
+	transLineU.topLeftCorner(3, 3) = TU.topLeftCorner(3, 3);
+	transLineU.bottomRightCorner(3, 3) = TU.topLeftCorner(3, 3);
+	transLineU.bottomLeftCorner(3, 3) = -1 * getSkew<floatPrec>(TU.col(3).head(3)) * TU.topLeftCorner(3, 3);
+	transLineV.topLeftCorner(3, 3) = TV.topLeftCorner(3, 3);
+	transLineV.bottomRightCorner(3, 3) = TV.topLeftCorner(3, 3);
+	transLineV.bottomLeftCorner(3, 3) = -1 * getSkew<floatPrec>(TV.col(3).head(3)) * TV.topLeftCorner(3, 3);
+
+	Matrix<floatPrec, 6,1> L1_1, L2_1, L3_1, M1_1, M2_1, M3_1;
+	L1_1 = transLineU * L1;
+	L2_1 = transLineU * L2;
+	L3_1 = transLineU * L3;
+	M1_1 = transLineV * M1;
+	M2_1 = transLineV * M2;
+	M3_1 = transLineV * M3;
+
+	floatPrec l11, l12, l13, l14, l15, l16, l21, l22, l23, l24, l25, l26, l31, l32, l33, l34, l35, l36;
+	floatPrec m11, m12, m13, m14, m15, m16, m21, m22, m23, m24, m25, m26, m31, m32, m33, m34, m35, m36;
+
+	l11 = L1_1[0];
+	l12 = L1_1[1];
+	l13 = L1_1[2];
+	l14 = L1_1[3];
+	l15 = L1_1[4];
+	l16 = L1_1[5];
+	l21 = L2_1[0];
+	l22 = L2_1[1];
+	l23 = L2_1[2];
+	l24 = L2_1[3];
+	l25 = L2_1[4];
+	l26 = L2_1[5];
+	l31 = L3_1[0];
+	l32 = L3_1[1];
+	l33 = L3_1[2];
+	l34 = L3_1[3];
+	l35 = L3_1[4];
+	l36 = L3_1[5];
+	
+	m11 = M1_1[0];
+	m12 = M1_1[1];
+	m13 = M1_1[2];
+	m14 = M1_1[3];
+	m15 = M1_1[4];
+	m16 = M1_1[5];
+	m21 = M2_1[0];
+	m22 = M2_1[1];
+	m23 = M2_1[2];
+	m24 = M2_1[3];
+	m25 = M2_1[4];
+	m26 = M2_1[5];
+	m31 = M3_1[0];
+	m32 = M3_1[1];
+	m33 = M3_1[2];
+	m34 = M3_1[3];
+	m35 = M3_1[4];
+	m36 = M3_1[5];
+
+	floatPrec k1_0, k1_1, k1_2, k1_3, k1_4, k1_5, k1_6, k1_7, k1_8, k1_9;
+	k1_0 = l11*m14 + l12*m15 + l13*m16 + l14*m11 + l15*m12 + l16*m13;
+	k1_1 = 2*l11*m15 - 2*l12*m14 + 2*l14*m12 - 2*l15*m11;
+	k1_2 = -l11*m14 - l12*m15 + l13*m16 - l14*m11 - l15*m12 + l16*m13;
+	k1_3 = -2*l11*m16 + 2*l13*m14 - 2*l14*m13 + 2*l16*m11;
+	k1_4 = 2*l12*m16 + 2*l13*m15 + 2*l15*m13 + 2*l16*m12;
+	k1_5 = -l11*m14 + l12*m15 - l13*m16 - l14*m11 + l15*m12 - l16*m13;
+	k1_6 = 2*l12*m16 - 2*l13*m15 + 2*l15*m13 - 2*l16*m12;
+	k1_7 = 2*l11*m16 + 2*l13*m14 + 2*l14*m13 + 2*l16*m11;
+	k1_8 = 2*l11*m15 + 2*l12*m14 + 2*l14*m12 + 2*l15*m11;
+	k1_9 = l11*m14 - l12*m15 - l13*m16 + l14*m11 - l15*m12 - l16*m13;
+
+	floatPrec k2_0, k2_1, k2_2, k2_3, k2_4, k2_5, k2_6, k2_7, k2_8, k2_9;
+	k2_0 = l21*m24 + l22*m25 + l23*m26 + l24*m21 + l25*m22 + l26*m23;
+	k2_1 = 2*l21*m25 - 2*l22*m24 + 2*l24*m22 - 2*l25*m21;
+	k2_2 = -l21*m24 - l22*m25 + l23*m26 - l24*m21 - l25*m22 + l26*m23;
+	k2_3 = -2*l21*m26 + 2*l23*m24 - 2*l24*m23 + 2*l26*m21;
+	k2_4 = 2*l22*m26 + 2*l23*m25 + 2*l25*m23 + 2*l26*m22;
+	k2_5 = -l21*m24 + l22*m25 - l23*m26 - l24*m21 + l25*m22 - l26*m23;
+	k2_6 = 2*l22*m26 - 2*l23*m25 + 2*l25*m23 - 2*l26*m22;
+	k2_7 = 2*l21*m26 + 2*l23*m24 + 2*l24*m23 + 2*l26*m21;
+	k2_8 = 2*l21*m25 + 2*l22*m24 + 2*l24*m22 + 2*l25*m21;
+	k2_9 = l21*m24 - l22*m25 - l23*m26 + l24*m21 - l25*m22 - l26*m23;
+
+	floatPrec k3_0, k3_1, k3_2, k3_3, k3_4, k3_5, k3_6, k3_7, k3_8, k3_9;
+	k3_0 = l31*m34 + l32*m35 + l33*m36 + l34*m31 + l35*m32 + l36*m33;
+	k3_1 = 2*l31*m35 - 2*l32*m34 + 2*l34*m32 - 2*l35*m31;
+	k3_2 = -l31*m34 - l32*m35 + l33*m36 - l34*m31 - l35*m32 + l36*m33;
+	k3_3 = -2*l31*m36 + 2*l33*m34 - 2*l34*m33 + 2*l36*m31;
+	k3_4 = 2*l32*m36 + 2*l33*m35 + 2*l35*m33 + 2*l36*m32;
+	k3_5 = -l31*m34 + l32*m35 - l33*m36 - l34*m31 + l35*m32 - l36*m33;
+	k3_6 = 2*l32*m36 - 2*l33*m35 + 2*l35*m33 - 2*l36*m32;
+	k3_7 = 2*l31*m36 + 2*l33*m34 + 2*l34*m33 + 2*l36*m31;
+	k3_8 = 2*l31*m35 + 2*l32*m34 + 2*l34*m32 + 2*l35*m31;
+	k3_9 = l31*m34 - l32*m35 - l33*m36 + l34*m31 - l35*m32 - l36*m33;
+
+	floatPrec m1_0, m1_1;
+	m1_0 = (k1_2*k2_3*k3_4 - k1_2*k2_4*k3_3 - k1_3*k2_2*k3_4 + k1_3*k2_4*k3_2 + k1_4*k2_2*k3_3 - k1_4*k2_3*k3_2)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+	m1_1 = (-k1_2*k2_4*k3_8 + k1_2*k2_8*k3_4 + k1_4*k2_2*k3_8 - k1_4*k2_8*k3_2 - k1_8*k2_2*k3_4 + k1_8*k2_4*k3_2)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+
+	floatPrec m2_0, m2_1;
+	m2_0 = (-k1_1*k2_2*k3_4 + k1_1*k2_4*k3_2 + k1_2*k2_1*k3_4 - k1_2*k2_4*k3_1 - k1_4*k2_1*k3_2 + k1_4*k2_2*k3_1)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+	m2_1 = (-k1_2*k2_4*k3_7 + k1_2*k2_7*k3_4 + k1_4*k2_2*k3_7 - k1_4*k2_7*k3_2 - k1_7*k2_2*k3_4 + k1_7*k2_4*k3_2)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+
+	floatPrec m3_0, m3_1, m3_2;
+	m3_0 = (-k1_0*k2_2*k3_4 + k1_0*k2_4*k3_2 + k1_2*k2_0*k3_4 - k1_2*k2_4*k3_0 - k1_4*k2_0*k3_2 + k1_4*k2_2*k3_0)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+	m3_1 = (-k1_2*k2_4*k3_6 + k1_2*k2_6*k3_4 + k1_4*k2_2*k3_6 - k1_4*k2_6*k3_2 - k1_6*k2_2*k3_4 + k1_6*k2_4*k3_2)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+	m3_2 = (-k1_2*k2_4*k3_9 + k1_2*k2_9*k3_4 + k1_4*k2_2*k3_9 - k1_4*k2_9*k3_2 - k1_9*k2_2*k3_4 + k1_9*k2_4*k3_2)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+
+	floatPrec m4_0, m4_1;
+	m4_0 = (-k1_3*k2_4*k3_5 + k1_3*k2_5*k3_4 + k1_4*k2_3*k3_5 - k1_4*k2_5*k3_3 - k1_5*k2_3*k3_4 + k1_5*k2_4*k3_3)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+	m4_1 = (-k1_4*k2_5*k3_8 + k1_4*k2_8*k3_5 + k1_5*k2_4*k3_8 - k1_5*k2_8*k3_4 - k1_8*k2_4*k3_5 + k1_8*k2_5*k3_4)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+
+	floatPrec m5_0, m5_1;
+	m5_0 = (-k1_1*k2_4*k3_5 + k1_1*k2_5*k3_4 + k1_4*k2_1*k3_5 - k1_4*k2_5*k3_1 - k1_5*k2_1*k3_4 + k1_5*k2_4*k3_1)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+	m5_1 = (-k1_4*k2_5*k3_7 + k1_4*k2_7*k3_5 + k1_5*k2_4*k3_7 - k1_5*k2_7*k3_4 - k1_7*k2_4*k3_5 + k1_7*k2_5*k3_4)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+
+	floatPrec m6_0, m6_1, m6_2;
+	m6_0 = (-k1_0*k2_4*k3_5 + k1_0*k2_5*k3_4 + k1_4*k2_0*k3_5 - k1_4*k2_5*k3_0 - k1_5*k2_0*k3_4 + k1_5*k2_4*k3_0)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+	m6_1 = (-k1_4*k2_5*k3_6 + k1_4*k2_6*k3_5 + k1_5*k2_4*k3_6 - k1_5*k2_6*k3_4 - k1_6*k2_4*k3_5 + k1_6*k2_5*k3_4)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+	m6_2 = (-k1_4*k2_5*k3_9 + k1_4*k2_9*k3_5 + k1_5*k2_4*k3_9 - k1_5*k2_9*k3_4 - k1_9*k2_4*k3_5 + k1_9*k2_5*k3_4)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+
+	floatPrec m7_0, m7_1;
+	m7_0 = (-k1_2*k2_3*k3_5 + k1_2*k2_5*k3_3 + k1_3*k2_2*k3_5 - k1_3*k2_5*k3_2 - k1_5*k2_2*k3_3 + k1_5*k2_3*k3_2)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+	m7_1 = (k1_2*k2_5*k3_8 - k1_2*k2_8*k3_5 - k1_5*k2_2*k3_8 + k1_5*k2_8*k3_2 + k1_8*k2_2*k3_5 - k1_8*k2_5*k3_2)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+
+	floatPrec m8_0, m8_1;
+	m8_0 = (k1_1*k2_2*k3_5 - k1_1*k2_5*k3_2 - k1_2*k2_1*k3_5 + k1_2*k2_5*k3_1 + k1_5*k2_1*k3_2 - k1_5*k2_2*k3_1)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+	m8_1 = (k1_2*k2_5*k3_7 - k1_2*k2_7*k3_5 - k1_5*k2_2*k3_7 + k1_5*k2_7*k3_2 + k1_7*k2_2*k3_5 - k1_7*k2_5*k3_2)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+
+	floatPrec m9_0, m9_1, m9_2;
+	m9_0 = (k1_0*k2_2*k3_5 - k1_0*k2_5*k3_2 - k1_2*k2_0*k3_5 + k1_2*k2_5*k3_0 + k1_5*k2_0*k3_2 - k1_5*k2_2*k3_0)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+	m9_1 = (k1_2*k2_5*k3_6 - k1_2*k2_6*k3_5 - k1_5*k2_2*k3_6 + k1_5*k2_6*k3_2 + k1_6*k2_2*k3_5 - k1_6*k2_5*k3_2)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+	m9_2 = (k1_2*k2_5*k3_9 - k1_2*k2_9*k3_5 - k1_5*k2_2*k3_9 + k1_5*k2_9*k3_2 + k1_9*k2_2*k3_5 - k1_9*k2_5*k3_2)/(k1_2*k2_4*k3_5 - k1_2*k2_5*k3_4 - k1_4*k2_2*k3_5 + k1_4*k2_5*k3_2 + k1_5*k2_2*k3_4 - k1_5*k2_4*k3_2);
+
+	floatPrec n1_0, n1_1, n1_2;
+	n1_0 = m2_0*m4_0 - m7_0*m8_0 - m9_0;
+	n1_1 = m2_0*m4_1 + m2_1*m4_0 - m7_0*m8_1 - m7_1*m8_0 - m9_1;
+	n1_2 = m2_1*m4_1 - m7_1*m8_1 - m9_2;
+
+	floatPrec n2_0, n2_1, n2_2;
+	n2_0 = m1_0*m8_0 + m2_0*m5_0 - m2_0*m7_0 + m3_0 - m8_0*m8_0;
+	n2_1 = m1_0*m8_1 + m1_1*m8_0 + m2_0*m5_1 - m2_0*m7_1 + m2_1*m5_0 - m2_1*m7_0 + m3_1 - 2*m8_0*m8_1;
+	n2_2 = m1_1*m8_1 + m2_1*m5_1 - m2_1*m7_1 + m3_2 - m8_1*m8_1;
+
+	floatPrec n3_0, n3_1, n3_2, n3_3;
+	n3_0 = m1_0*m9_0 + m2_0*m6_0 - m3_0*m7_0 - m8_0*m9_0;
+	n3_1 = m1_0*m9_1 + m1_1*m9_0 + m2_0*m6_1 + m2_1*m6_0 - m3_0*m7_1 - m3_1*m7_0 - m8_0*m9_1 - m8_1*m9_0;
+	n3_2 = m1_0*m9_2 + m1_1*m9_1 + m2_0*m6_2 + m2_1*m6_1 - m3_1*m7_1 - m3_2*m7_0 - m8_0*m9_2 - m8_1*m9_1;
+	n3_3 = m1_1*m9_2 + m2_1*m6_2 - m3_2*m7_1 - m8_1*m9_2;
+
+	floatPrec n4_0, n4_1, n4_2;
+	n4_0 = -m1_0*m4_0 + m4_0*m8_0 - m5_0*m7_0 - m6_0 + m7_0*m7_0;
+	n4_1 = -m1_0*m4_1 - m1_1*m4_0 + m4_0*m8_1 + m4_1*m8_0 - m5_0*m7_1 - m5_1*m7_0 - m6_1 + 2*m7_0*m7_1;
+	n4_2 = -m1_1*m4_1 + m4_1*m8_1 - m5_1*m7_1 - m6_2 + m7_1*m7_1;
+
+	floatPrec n5_0, n5_1, n5_2;
+	n5_0 = -m2_0*m4_0 + m7_0*m8_0 + m9_0;
+	n5_1 = -m2_0*m4_1 - m2_1*m4_0 + m7_0*m8_1 + m7_1*m8_0 + m9_1;
+	n5_2 = -m2_1*m4_1 + m7_1*m8_1 + m9_2;
+
+	floatPrec n6_0, n6_1, n6_2, n6_3;
+	n6_0 = -m3_0*m4_0 - m5_0*m9_0 + m6_0*m8_0 + m7_0*m9_0;
+	n6_1 = -m3_0*m4_1 - m3_1*m4_0 - m5_0*m9_1 - m5_1*m9_0 + m6_0*m8_1 + m6_1*m8_0 + m7_0*m9_1 + m7_1*m9_0;
+	n6_2 = -m3_1*m4_1 - m3_2*m4_0 - m5_0*m9_2 - m5_1*m9_1 + m6_1*m8_1 + m6_2*m8_0 + m7_0*m9_2 + m7_1*m9_1;
+	n6_3 = -m3_2*m4_1 - m5_1*m9_2 + m6_2*m8_1 + m7_1*m9_2;
+
+	floatPrec n7_0, n7_1, n7_2, n7_3;
+	n7_0 = -m1_0*m1_0*m4_0 - m1_0*m5_0*m7_0 - m1_0*m6_0 + m1_0*m7_0*m7_0 - m2_0*m4_0*m5_0 - m2_0*m4_0*m7_0 - m3_0*m4_0 + m4_0*m8_0*m8_0 + 2*m7_0*m7_0*m8_0 + 2*m7_0*m9_0;
+	n7_1 = -m1_0*m1_0*m4_1 - 2*m1_0*m1_1*m4_0 - m1_0*m5_0*m7_1 - m1_0*m5_1*m7_0 - m1_0*m6_1 + 2*m1_0*m7_0*m7_1 - m1_1*m5_0*m7_0 - m1_1*m6_0 + m1_1*m7_0*m7_0 - m2_0*m4_0*m5_1 - m2_0*m4_0*m7_1 - m2_0*m4_1*m5_0 - m2_0*m4_1*m7_0 - m2_1*m4_0*m5_0 - m2_1*m4_0*m7_0 - m3_0*m4_1 - m3_1*m4_0 + 2*m4_0*m8_0*m8_1 + m4_1*m8_0*m8_0 + 2*m7_0*m7_0*m8_1 + 4*m7_0*m7_1*m8_0 + 2*m7_0*m9_1 + 2*m7_1*m9_0;
+	n7_2 = -2*m1_0*m1_1*m4_1 - m1_0*m5_1*m7_1 - m1_0*m6_2 + m1_0*m7_1*m7_1 - m1_1*m1_1*m4_0 - m1_1*m5_0*m7_1 - m1_1*m5_1*m7_0 - m1_1*m6_1 + 2*m1_1*m7_0*m7_1 - m2_0*m4_1*m5_1 - m2_0*m4_1*m7_1 - m2_1*m4_0*m5_1 - m2_1*m4_0*m7_1 - m2_1*m4_1*m5_0 - m2_1*m4_1*m7_0 - m3_1*m4_1 - m3_2*m4_0 + m4_0*m8_1*m8_1 + 2*m4_1*m8_0*m8_1 + 4*m7_0*m7_1*m8_1 + 2*m7_0*m9_2 + 2*m7_1*m7_1*m8_0 + 2*m7_1*m9_1;
+	n7_3 = -m1_1*m1_1*m4_1 - m1_1*m5_1*m7_1 - m1_1*m6_2 + m1_1*m7_1*m7_1 - m2_1*m4_1*m5_1 - m2_1*m4_1*m7_1 - m3_2*m4_1 + m4_1*m8_1*m8_1 + 2*m7_1*m7_1*m8_1 + 2*m7_1*m9_2;
+
+	floatPrec n8_0, n8_1, n8_2, n8_3;
+	n8_0 = -m1_0*m2_0*m4_0 - m1_0*m5_0*m8_0 - m2_0*m4_0*m8_0 - m2_0*m5_0*m5_0 - m2_0*m6_0 + m2_0*m7_0*m7_0 - m3_0*m5_0 + m5_0*m8_0*m8_0 + 2*m7_0*m8_0*m8_0 + 2*m8_0*m9_0;
+	n8_1 = -m1_0*m2_0*m4_1 - m1_0*m2_1*m4_0 - m1_0*m5_0*m8_1 - m1_0*m5_1*m8_0 - m1_1*m2_0*m4_0 - m1_1*m5_0*m8_0 - m2_0*m4_0*m8_1 - m2_0*m4_1*m8_0 - 2*m2_0*m5_0*m5_1 - m2_0*m6_1 + 2*m2_0*m7_0*m7_1 - m2_1*m4_0*m8_0 - m2_1*m5_0*m5_0 - m2_1*m6_0 + m2_1*m7_0*m7_0 - m3_0*m5_1 - m3_1*m5_0 + 2*m5_0*m8_0*m8_1 + m5_1*m8_0*m8_0 + 4*m7_0*m8_0*m8_1 + 2*m7_1*m8_0*m8_0 + 2*m8_0*m9_1 + 2*m8_1*m9_0;
+	n8_2 = -m1_0*m2_1*m4_1 - m1_0*m5_1*m8_1 - m1_1*m2_0*m4_1 - m1_1*m2_1*m4_0 - m1_1*m5_0*m8_1 - m1_1*m5_1*m8_0 - m2_0*m4_1*m8_1 - m2_0*m5_1*m5_1 - m2_0*m6_2 + m2_0*m7_1*m7_1 - m2_1*m4_0*m8_1 - m2_1*m4_1*m8_0 - 2*m2_1*m5_0*m5_1 - m2_1*m6_1 + 2*m2_1*m7_0*m7_1 - m3_1*m5_1 - m3_2*m5_0 + m5_0*m8_1*m8_1 + 2*m5_1*m8_0*m8_1 + 2*m7_0*m8_1*m8_1 + 4*m7_1*m8_0*m8_1 + 2*m8_0*m9_2 + 2*m8_1*m9_1;
+	n8_3 = -m1_1*m2_1*m4_1 - m1_1*m5_1*m8_1 - m2_1*m4_1*m8_1 - m2_1*m5_1*m5_1 - m2_1*m6_2 + m2_1*m7_1*m7_1 - m3_2*m5_1 + m5_1*m8_1*m8_1 + 2*m7_1*m8_1*m8_1 + 2*m8_1*m9_2;
+
+	floatPrec n9_0, n9_1, n9_2, n9_3, n9_4;
+	n9_0 = -m1_0*m3_0*m4_0 - m1_0*m5_0*m9_0 - m2_0*m4_0*m9_0 - m2_0*m5_0*m6_0 - m3_0*m6_0 + m3_0*m7_0*m7_0 + m6_0*m8_0*m8_0 + 2*m7_0*m8_0*m9_0 + m9_0*m9_0;
+	n9_1 = -m1_0*m3_0*m4_1 - m1_0*m3_1*m4_0 - m1_0*m5_0*m9_1 - m1_0*m5_1*m9_0 - m1_1*m3_0*m4_0 - m1_1*m5_0*m9_0 - m2_0*m4_0*m9_1 - m2_0*m4_1*m9_0 - m2_0*m5_0*m6_1 - m2_0*m5_1*m6_0 - m2_1*m4_0*m9_0 - m2_1*m5_0*m6_0 - m3_0*m6_1 + 2*m3_0*m7_0*m7_1 - m3_1*m6_0 + m3_1*m7_0*m7_0 + 2*m6_0*m8_0*m8_1 + m6_1*m8_0*m8_0 + 2*m7_0*m8_0*m9_1 + 2*m7_0*m8_1*m9_0 + 2*m7_1*m8_0*m9_0 + 2*m9_0*m9_1;
+	n9_2 = -m1_0*m3_1*m4_1 - m1_0*m3_2*m4_0 - m1_0*m5_0*m9_2 - m1_0*m5_1*m9_1 - m1_1*m3_0*m4_1 - m1_1*m3_1*m4_0 - m1_1*m5_0*m9_1 - m1_1*m5_1*m9_0 - m2_0*m4_0*m9_2 - m2_0*m4_1*m9_1 - m2_0*m5_0*m6_2 - m2_0*m5_1*m6_1 - m2_1*m4_0*m9_1 - m2_1*m4_1*m9_0 - m2_1*m5_0*m6_1 - m2_1*m5_1*m6_0 - m3_0*m6_2 + m3_0*m7_1*m7_1 - m3_1*m6_1 + 2*m3_1*m7_0*m7_1 - m3_2*m6_0 + m3_2*m7_0*m7_0 + m6_0*m8_1*m8_1 + 2*m6_1*m8_0*m8_1 + m6_2*m8_0*m8_0 + 2*m7_0*m8_0*m9_2 + 2*m7_0*m8_1*m9_1 + 2*m7_1*m8_0*m9_1 + 2*m7_1*m8_1*m9_0 + 2*m9_0*m9_2 + m9_1*m9_1;
+	n9_3 = -m1_0*m3_2*m4_1 - m1_0*m5_1*m9_2 - m1_1*m3_1*m4_1 - m1_1*m3_2*m4_0 - m1_1*m5_0*m9_2 - m1_1*m5_1*m9_1 - m2_0*m4_1*m9_2 - m2_0*m5_1*m6_2 - m2_1*m4_0*m9_2 - m2_1*m4_1*m9_1 - m2_1*m5_0*m6_2 - m2_1*m5_1*m6_1 - m3_1*m6_2 + m3_1*m7_1*m7_1 - m3_2*m6_1 + 2*m3_2*m7_0*m7_1 + m6_1*m8_1*m8_1 + 2*m6_2*m8_0*m8_1 + 2*m7_0*m8_1*m9_2 + 2*m7_1*m8_0*m9_2 + 2*m7_1*m8_1*m9_1 + 2*m9_1*m9_2;
+	n9_4 = -m1_1*m3_2*m4_1 - m1_1*m5_1*m9_2 - m2_1*m4_1*m9_2 - m2_1*m5_1*m6_2 - m3_2*m6_2 + m3_2*m7_1*m7_1 + m6_2*m8_1*m8_1 + 2*m7_1*m8_1*m9_2 + m9_2*m9_2;
+
+	floatPrec o7_0, o7_1, o7_2, o7_3, o7_4, o7_5, o7_6, o7_7, o7_8;
+	o7_0 = n1_0*n5_0*n9_0 - n1_0*n6_0*n8_0 - n2_0*n4_0*n9_0 + n2_0*n6_0*n7_0 + n3_0*n4_0*n8_0 - n3_0*n5_0*n7_0;
+	o7_1 = n1_0*n5_0*n9_1 + n1_0*n5_1*n9_0 - n1_0*n6_0*n8_1 - n1_0*n6_1*n8_0 + n1_1*n5_0*n9_0 - n1_1*n6_0*n8_0 - n2_0*n4_0*n9_1 - n2_0*n4_1*n9_0 + n2_0*n6_0*n7_1 + n2_0*n6_1*n7_0 - n2_1*n4_0*n9_0 + n2_1*n6_0*n7_0 + n3_0*n4_0*n8_1 + n3_0*n4_1*n8_0 - n3_0*n5_0*n7_1 - n3_0*n5_1*n7_0 + n3_1*n4_0*n8_0 - n3_1*n5_0*n7_0;
+	o7_2 = n1_0*n5_0*n9_2 + n1_0*n5_1*n9_1 + n1_0*n5_2*n9_0 - n1_0*n6_0*n8_2 - n1_0*n6_1*n8_1 - n1_0*n6_2*n8_0 + n1_1*n5_0*n9_1 + n1_1*n5_1*n9_0 - n1_1*n6_0*n8_1 - n1_1*n6_1*n8_0 + n1_2*n5_0*n9_0 - n1_2*n6_0*n8_0 - n2_0*n4_0*n9_2 - n2_0*n4_1*n9_1 - n2_0*n4_2*n9_0 + n2_0*n6_0*n7_2 + n2_0*n6_1*n7_1 + n2_0*n6_2*n7_0 - n2_1*n4_0*n9_1 - n2_1*n4_1*n9_0 + n2_1*n6_0*n7_1 + n2_1*n6_1*n7_0 - n2_2*n4_0*n9_0 + n2_2*n6_0*n7_0 + n3_0*n4_0*n8_2 + n3_0*n4_1*n8_1 + n3_0*n4_2*n8_0 - n3_0*n5_0*n7_2 - n3_0*n5_1*n7_1 - n3_0*n5_2*n7_0 + n3_1*n4_0*n8_1 + n3_1*n4_1*n8_0 - n3_1*n5_0*n7_1 - n3_1*n5_1*n7_0 + n3_2*n4_0*n8_0 - n3_2*n5_0*n7_0;
+	o7_3 = n1_0*n5_0*n9_3 + n1_0*n5_1*n9_2 + n1_0*n5_2*n9_1 - n1_0*n6_0*n8_3 - n1_0*n6_1*n8_2 - n1_0*n6_2*n8_1 - n1_0*n6_3*n8_0 + n1_1*n5_0*n9_2 + n1_1*n5_1*n9_1 + n1_1*n5_2*n9_0 - n1_1*n6_0*n8_2 - n1_1*n6_1*n8_1 - n1_1*n6_2*n8_0 + n1_2*n5_0*n9_1 + n1_2*n5_1*n9_0 - n1_2*n6_0*n8_1 - n1_2*n6_1*n8_0 - n2_0*n4_0*n9_3 - n2_0*n4_1*n9_2 - n2_0*n4_2*n9_1 + n2_0*n6_0*n7_3 + n2_0*n6_1*n7_2 + n2_0*n6_2*n7_1 + n2_0*n6_3*n7_0 - n2_1*n4_0*n9_2 - n2_1*n4_1*n9_1 - n2_1*n4_2*n9_0 + n2_1*n6_0*n7_2 + n2_1*n6_1*n7_1 + n2_1*n6_2*n7_0 - n2_2*n4_0*n9_1 - n2_2*n4_1*n9_0 + n2_2*n6_0*n7_1 + n2_2*n6_1*n7_0 + n3_0*n4_0*n8_3 + n3_0*n4_1*n8_2 + n3_0*n4_2*n8_1 - n3_0*n5_0*n7_3 - n3_0*n5_1*n7_2 - n3_0*n5_2*n7_1 + n3_1*n4_0*n8_2 + n3_1*n4_1*n8_1 + n3_1*n4_2*n8_0 - n3_1*n5_0*n7_2 - n3_1*n5_1*n7_1 - n3_1*n5_2*n7_0 + n3_2*n4_0*n8_1 + n3_2*n4_1*n8_0 - n3_2*n5_0*n7_1 - n3_2*n5_1*n7_0 + n3_3*n4_0*n8_0 - n3_3*n5_0*n7_0;
+	o7_4 = n1_0*n5_0*n9_4 + n1_0*n5_1*n9_3 + n1_0*n5_2*n9_2 - n1_0*n6_1*n8_3 - n1_0*n6_2*n8_2 - n1_0*n6_3*n8_1 + n1_1*n5_0*n9_3 + n1_1*n5_1*n9_2 + n1_1*n5_2*n9_1 - n1_1*n6_0*n8_3 - n1_1*n6_1*n8_2 - n1_1*n6_2*n8_1 - n1_1*n6_3*n8_0 + n1_2*n5_0*n9_2 + n1_2*n5_1*n9_1 + n1_2*n5_2*n9_0 - n1_2*n6_0*n8_2 - n1_2*n6_1*n8_1 - n1_2*n6_2*n8_0 - n2_0*n4_0*n9_4 - n2_0*n4_1*n9_3 - n2_0*n4_2*n9_2 + n2_0*n6_1*n7_3 + n2_0*n6_2*n7_2 + n2_0*n6_3*n7_1 - n2_1*n4_0*n9_3 - n2_1*n4_1*n9_2 - n2_1*n4_2*n9_1 + n2_1*n6_0*n7_3 + n2_1*n6_1*n7_2 + n2_1*n6_2*n7_1 + n2_1*n6_3*n7_0 - n2_2*n4_0*n9_2 - n2_2*n4_1*n9_1 - n2_2*n4_2*n9_0 + n2_2*n6_0*n7_2 + n2_2*n6_1*n7_1 + n2_2*n6_2*n7_0 + n3_0*n4_1*n8_3 + n3_0*n4_2*n8_2 - n3_0*n5_1*n7_3 - n3_0*n5_2*n7_2 + n3_1*n4_0*n8_3 + n3_1*n4_1*n8_2 + n3_1*n4_2*n8_1 - n3_1*n5_0*n7_3 - n3_1*n5_1*n7_2 - n3_1*n5_2*n7_1 + n3_2*n4_0*n8_2 + n3_2*n4_1*n8_1 + n3_2*n4_2*n8_0 - n3_2*n5_0*n7_2 - n3_2*n5_1*n7_1 - n3_2*n5_2*n7_0 + n3_3*n4_0*n8_1 + n3_3*n4_1*n8_0 - n3_3*n5_0*n7_1 - n3_3*n5_1*n7_0;
+	o7_5 = n1_0*n5_1*n9_4 + n1_0*n5_2*n9_3 - n1_0*n6_2*n8_3 - n1_0*n6_3*n8_2 + n1_1*n5_0*n9_4 + n1_1*n5_1*n9_3 + n1_1*n5_2*n9_2 - n1_1*n6_1*n8_3 - n1_1*n6_2*n8_2 - n1_1*n6_3*n8_1 + n1_2*n5_0*n9_3 + n1_2*n5_1*n9_2 + n1_2*n5_2*n9_1 - n1_2*n6_0*n8_3 - n1_2*n6_1*n8_2 - n1_2*n6_2*n8_1 - n1_2*n6_3*n8_0 - n2_0*n4_1*n9_4 - n2_0*n4_2*n9_3 + n2_0*n6_2*n7_3 + n2_0*n6_3*n7_2 - n2_1*n4_0*n9_4 - n2_1*n4_1*n9_3 - n2_1*n4_2*n9_2 + n2_1*n6_1*n7_3 + n2_1*n6_2*n7_2 + n2_1*n6_3*n7_1 - n2_2*n4_0*n9_3 - n2_2*n4_1*n9_2 - n2_2*n4_2*n9_1 + n2_2*n6_0*n7_3 + n2_2*n6_1*n7_2 + n2_2*n6_2*n7_1 + n2_2*n6_3*n7_0 + n3_0*n4_2*n8_3 - n3_0*n5_2*n7_3 + n3_1*n4_1*n8_3 + n3_1*n4_2*n8_2 - n3_1*n5_1*n7_3 - n3_1*n5_2*n7_2 + n3_2*n4_0*n8_3 + n3_2*n4_1*n8_2 + n3_2*n4_2*n8_1 - n3_2*n5_0*n7_3 - n3_2*n5_1*n7_2 - n3_2*n5_2*n7_1 + n3_3*n4_0*n8_2 + n3_3*n4_1*n8_1 + n3_3*n4_2*n8_0 - n3_3*n5_0*n7_2 - n3_3*n5_1*n7_1 - n3_3*n5_2*n7_0;
+	o7_6 = n1_0*n5_2*n9_4 - n1_0*n6_3*n8_3 + n1_1*n5_1*n9_4 + n1_1*n5_2*n9_3 - n1_1*n6_2*n8_3 - n1_1*n6_3*n8_2 + n1_2*n5_0*n9_4 + n1_2*n5_1*n9_3 + n1_2*n5_2*n9_2 - n1_2*n6_1*n8_3 - n1_2*n6_2*n8_2 - n1_2*n6_3*n8_1 - n2_0*n4_2*n9_4 + n2_0*n6_3*n7_3 - n2_1*n4_1*n9_4 - n2_1*n4_2*n9_3 + n2_1*n6_2*n7_3 + n2_1*n6_3*n7_2 - n2_2*n4_0*n9_4 - n2_2*n4_1*n9_3 - n2_2*n4_2*n9_2 + n2_2*n6_1*n7_3 + n2_2*n6_2*n7_2 + n2_2*n6_3*n7_1 + n3_1*n4_2*n8_3 - n3_1*n5_2*n7_3 + n3_2*n4_1*n8_3 + n3_2*n4_2*n8_2 - n3_2*n5_1*n7_3 - n3_2*n5_2*n7_2 + n3_3*n4_0*n8_3 + n3_3*n4_1*n8_2 + n3_3*n4_2*n8_1 - n3_3*n5_0*n7_3 - n3_3*n5_1*n7_2 - n3_3*n5_2*n7_1;
+	o7_7 = n1_1*n5_2*n9_4 - n1_1*n6_3*n8_3 + n1_2*n5_1*n9_4 + n1_2*n5_2*n9_3 - n1_2*n6_2*n8_3 - n1_2*n6_3*n8_2 - n2_1*n4_2*n9_4 + n2_1*n6_3*n7_3 - n2_2*n4_1*n9_4 - n2_2*n4_2*n9_3 + n2_2*n6_2*n7_3 + n2_2*n6_3*n7_2 + n3_2*n4_2*n8_3 - n3_2*n5_2*n7_3 + n3_3*n4_1*n8_3 + n3_3*n4_2*n8_2 - n3_3*n5_1*n7_3 - n3_3*n5_2*n7_2;
+	o7_8 = n1_2*n5_2*n9_4 - n1_2*n6_3*n8_3 - n2_2*n4_2*n9_4 + n2_2*n6_3*n7_3 + n3_3*n4_2*n8_3 - n3_3*n5_2*n7_3;
+
+	Eigen::Matrix<floatPrec,9,1> coeff(9);
+	coeff[0] = o7_0;
+	coeff[1] = o7_1;
+	coeff[2] = o7_2;
+	coeff[3] = o7_3;
+	coeff[4] = o7_4;
+	coeff[5] = o7_5;
+	coeff[6] = o7_6;
+	coeff[7] = o7_7;
+	coeff[8] = o7_8;
+
+	std::vector<floatPrec> calc_realRoots;
+	Eigen::PolynomialSolver<floatPrec, Eigen::Dynamic> solver;
+    unsigned int numHyp = 0;
+	if(coeff[coeff.size()-1] != floatPrec(0.0)){
+		// std::cout << coeff.transpose() << std::endl;
+		solver.compute(coeff);
+		solver.realRoots(calc_realRoots);    
+		numHyp = calc_realRoots.size();
+	}
+	else{
+		return out;
+	}
+
+	floatPrec x, y, z;
+	floatPrec r11, r12, r13, r21, r22, r23, r31, r32, r33, r_;
+
+	Matrix<floatPrec, 4,4> TP;
+	for(unsigned int i = 0; i < numHyp; i++){
+
+		TP.setIdentity(4,4);
+
+		x = calc_realRoots[i];
+		y = (n2_0*n6_0 + n2_0*n6_1*x + n2_0*n6_2*x*x + n2_0*n6_3*x*x*x + n2_1*n6_0*x + n2_1*n6_1*x*x + n2_1*n6_2*x*x*x + n2_1*n6_3*x*x*x*x + n2_2*n6_0*x*x + n2_2*n6_1*x*x*x + n2_2*n6_2*x*x*x*x + n2_2*n6_3*x*x*x*x*x - n3_0*n5_0 - n3_0*n5_1*x - n3_0*n5_2*x*x - n3_1*n5_0*x - n3_1*n5_1*x*x - n3_1*n5_2*x*x*x - n3_2*n5_0*x*x - n3_2*n5_1*x*x*x - n3_2*n5_2*x*x*x*x - n3_3*n5_0*x*x*x - n3_3*n5_1*x*x*x*x - n3_3*n5_2*x*x*x*x*x)/(n1_0*n5_0 + n1_0*n5_1*x + n1_0*n5_2*x*x + n1_1*n5_0*x + n1_1*n5_1*x*x + n1_1*n5_2*x*x*x + n1_2*n5_0*x*x + n1_2*n5_1*x*x*x + n1_2*n5_2*x*x*x*x - n2_0*n4_0 - n2_0*n4_1*x - n2_0*n4_2*x*x - n2_1*n4_0*x - n2_1*n4_1*x*x - n2_1*n4_2*x*x*x - n2_2*n4_0*x*x - n2_2*n4_1*x*x*x - n2_2*n4_2*x*x*x*x);
+		z = (-n1_0*n6_0 - n1_0*n6_1*x - n1_0*n6_2*x*x - n1_0*n6_3*x*x*x - n1_1*n6_0*x - n1_1*n6_1*x*x - n1_1*n6_2*x*x*x - n1_1*n6_3*x*x*x*x - n1_2*n6_0*x*x - n1_2*n6_1*x*x*x - n1_2*n6_2*x*x*x*x - n1_2*n6_3*x*x*x*x*x + n3_0*n4_0 + n3_0*n4_1*x + n3_0*n4_2*x*x + n3_1*n4_0*x + n3_1*n4_1*x*x + n3_1*n4_2*x*x*x + n3_2*n4_0*x*x + n3_2*n4_1*x*x*x + n3_2*n4_2*x*x*x*x + n3_3*n4_0*x*x*x + n3_3*n4_1*x*x*x*x + n3_3*n4_2*x*x*x*x*x)/(n1_0*n5_0 + n1_0*n5_1*x + n1_0*n5_2*x*x + n1_1*n5_0*x + n1_1*n5_1*x*x + n1_1*n5_2*x*x*x + n1_2*n5_0*x*x + n1_2*n5_1*x*x*x + n1_2*n5_2*x*x*x*x - n2_0*n4_0 - n2_0*n4_1*x - n2_0*n4_2*x*x - n2_1*n4_0*x - n2_1*n4_1*x*x - n2_1*n4_2*x*x*x - n2_2*n4_0*x*x - n2_2*n4_1*x*x*x - n2_2*n4_2*x*x*x*x);
+
+		r_  = 1 + x*x + y*y + z*z;
+		r11 = 1 + x*x - y*y - z*z; r11 /= r_;
+		r12 = 2*x*y - 2*z; r12 /= r_;
+		r13 = 2*y + 2*x*z; r13 /= r_;
+		r21 = 2*x*y + 2*z; r21 /= r_;
+		r22 = 1 - x*x + y*y - z*z; r22 /= r_;
+		r23 = 2*y*z - 2*x; r23 /= r_;
+		r31 = 2*x*z - 2*y; r31 /= r_;
+		r32 = 2*x + 2*y*z;  r32 /= r_;
+		r33 = 1 - x*x - y*y + z*z; r33 /= r_;
+
+		TP.topLeftCorner(3, 3) << r11, r12, r13, r21, r22, r23, r31, r32, r33;
+		Matrix<floatPrec, 4,4> outi = TV.inverse() * TP * TU;
+
+		out.push_back(outi);
+
+	}
+
+	return out;
+}
+
+
 // Solver for the case of 2 planes and 1 line
-//
 template vector<Matrix<float, 4, 4>> solver2P1L<float>(
 	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair);
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lCPair);
 
 template vector<Matrix<double, 4, 4>> solver2P1L<double>(
 	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair);
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lCPair);
 
 template <typename floatPrec>
 std::vector<Eigen::Matrix<floatPrec, 4, 4>> solver2P1L(
 	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair)
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lCPair)
 {
 
 	// check input vectors size
@@ -644,22 +1014,26 @@ std::vector<Eigen::Matrix<floatPrec, 4, 4>> solver2P1L(
 	return out_vec;
 }
 
+// Solver for the case of 3 lines, and 1 plane
 template vector<Matrix<float, 4, 4>> solver1P3L<float>(
 	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair);
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lCPair);
 
 template vector<Matrix<double, 4, 4>> solver1P3L<double>(
 	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair);
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lCPair);
 
 // Solver for the case of one plane correspondence and two lines intersection
 template <typename floatPrec>
 vector<Matrix<floatPrec, 4, 4>> solver1P3L(
 	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair)
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lCPair)
 {
 
 	// check input vectors size
@@ -887,8 +1261,502 @@ vector<Matrix<floatPrec, 4, 4>> solver1P3L(
 	return out;
 }
 
+// Solver for the case of 1 line correspondence and 1 point
+template std::vector<Eigen::Matrix<float, 4, 4>> solver1M1Q(
+	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lCPair);
+
+template std::vector<Eigen::Matrix<double, 4, 4>> solver1M1Q(
+	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lCPair);
+
+template <typename floatPrec>
+std::vector<Eigen::Matrix<floatPrec, 4, 4>> solver1M1Q(
+	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lCPair){
+
+	// check input vectors size
+	if(ptPair.size() < 1 || lCPair.size() < 1){
+		std::cerr << "Solver 1M1Q requires at least 1 point, and 1 line correspondence!" << std::endl;
+		exit(-1);
+	}
+
+	std::vector<Eigen::Matrix<floatPrec,4,4>> out;
+	
+	// get lines in plucker coordinates
+	std::vector<Eigen::Matrix<floatPrec,6,1>> lines1 = getPluckerCoord(lCPair[0]);
+	
+
+	// move frames to first line and z axis with its direction
+	std::vector<Eigen::Matrix<floatPrec,4,4>> trans = getPredefinedTransformations1M1Q(lines1[0],lines1[1]);
+	Eigen::Matrix<floatPrec,4,4> TU1 = trans[0], TU2 = trans[1];
+	Eigen::Matrix<floatPrec,6,6> TUL1 = Eigen::Matrix<floatPrec,6,6>::Identity(), TUL2 = Eigen::Matrix<floatPrec,6,6>::Identity();
+	TUL1.topLeftCorner(3,3) = TU1.topLeftCorner(3,3);
+	TUL1.block(3,3,3,3) = TU1.topLeftCorner(3,3);
+	TUL1.block(3,0,3,3) = -1*getSkew<floatPrec>(TU1.topRightCorner(3,1))*TU1.topLeftCorner(3,3);
+	TUL2.topLeftCorner(3,3) = TU2.topLeftCorner(3,3);
+	TUL2.block(3,3,3,3) = TU2.topLeftCorner(3,3);
+	TUL2.block(3,0,3,3) = -1*getSkew<floatPrec>(TU2.topRightCorner(3,1))*TU2.topLeftCorner(3,3);
+
+	// transform point and line to new ref
+	Eigen::Matrix<floatPrec,4,1> pU1 = TU1*ptPair[0].first;
+	Eigen::Matrix<floatPrec,4,1> pU2 = TU2*ptPair[0].second;
+	Eigen::Matrix<floatPrec,6,1> lU1 = TUL1*lines1[0];
+	Eigen::Matrix<floatPrec,6,1> lU2 = TUL2*lines1[1];
+
+	// move origin to point projection to line
+	Eigen::Matrix<floatPrec,3,1> v1 = -pU1.head(3).transpose()*lU1.head(3)*lU1.head(3);
+	Eigen::Matrix<floatPrec,3,1> v2 = -pU2.head(3).transpose()*lU2.head(3)*lU2.head(3);
+	Eigen::Matrix<floatPrec,4,4> Tv1 = Eigen::Matrix<floatPrec,4,4>::Identity(), Tv2 = Eigen::Matrix<floatPrec,4,4>::Identity();
+	Tv1.topRightCorner(3,1) = v1; Tv2.topRightCorner(3,1) = v2;
+
+	// transform to new frame
+	Eigen::Matrix<floatPrec,4,1> pv1 = Tv1*pU1;
+	Eigen::Matrix<floatPrec,4,1> pv2 = Tv2*pU2;
+
+	// align P to x axis
+	floatPrec alpha1 = atan2(pv1(1),pv1(0));
+	floatPrec alpha2 = atan2(pv2(1),pv2(0));
+	Eigen::Matrix<floatPrec,3,3> V1, V2;
+	V1 << cos(alpha1),sin(alpha1),0,-sin(alpha1),cos(alpha1),0,0,0,1;
+	V2 << cos(alpha2),sin(alpha2),0,-sin(alpha2),cos(alpha2),0,0,0,1;
+	Eigen::Matrix<floatPrec,4,4> TV1 = Eigen::Matrix<floatPrec,4,4>::Identity();
+	TV1.topLeftCorner(3,3) = V1;
+	Eigen::Matrix<floatPrec,4,4> TV2 = Eigen::Matrix<floatPrec,4,4>::Identity();
+	TV2.topLeftCorner(3,3) = V2;
+
+	Eigen::Matrix<floatPrec,4,4> estTrans = TU2.inverse()*Tv2.inverse()*TV2.inverse()*TV1*Tv1*TU1;
+	// std::cout << estTrans << std::endl;
+	out.push_back(estTrans);
+
+	return out;
+}
+
+
+// Solver for the case of 2 line correspondences
+template std::vector<Eigen::Matrix<float, 4, 4>> solver2M(
+	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lCPair);
+
+template std::vector<Eigen::Matrix<double, 4, 4>> solver2M(
+	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lCPair);
+
+template <typename floatPrec>
+std::vector<Eigen::Matrix<floatPrec, 4, 4>> solver2M(
+	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lCPair){
+
+	// check input vectors size
+	if(lCPair.size() < 2){
+		std::cerr << "Solver 2M requires at least 2 line correspondences!" << std::endl;
+		exit(-1);
+	}
+
+	std::vector<Eigen::Matrix<floatPrec,4,4>> out;
+
+	// get lines in plucker coordinates
+	std::vector<Eigen::Matrix<floatPrec,6,1>> lines1 = getPluckerCoord(lCPair[0]);
+	std::vector<Eigen::Matrix<floatPrec,6,1>> lines2 = getPluckerCoord(lCPair[1]);
+	
+
+	// move frames to first line and z axis with its direction
+	std::vector<Eigen::Matrix<floatPrec,4,4>> trans = getPredefinedTransformations1M1Q(lines1[0],lines1[1]);
+	Eigen::Matrix<floatPrec,4,4> TU1 = trans[0], TU2 = trans[1];
+	Eigen::Matrix<floatPrec,6,6> TUL1 = Eigen::Matrix<floatPrec,6,6>::Identity(), TUL2 = Eigen::Matrix<floatPrec,6,6>::Identity();
+	TUL1.topLeftCorner(3,3) = TU1.topLeftCorner(3,3);
+	TUL1.block(3,3,3,3) = TU1.topLeftCorner(3,3);
+	TUL1.block(3,0,3,3) = -getSkew<floatPrec>(TU1.topRightCorner(3,1))*TU1.topLeftCorner(3,3);
+	TUL2.topLeftCorner(3,3) = TU2.topLeftCorner(3,3);
+	TUL2.block(3,3,3,3) = TU2.topLeftCorner(3,3);
+	TUL2.block(3,0,3,3) = -getSkew<floatPrec>(TU2.topRightCorner(3,1))*TU2.topLeftCorner(3,3);
+
+	// transform lines to new frame
+	Eigen::Matrix<floatPrec,6,1> lU1 = TUL1*lines1[0];
+	Eigen::Matrix<floatPrec,6,1> lU2 = TUL2*lines1[1];
+	Eigen::Matrix<floatPrec,6,1> lU3 = TUL1*lines2[0];
+	Eigen::Matrix<floatPrec,6,1> lU4 = TUL2*lines2[1];
+
+	// get direction and moment vectors
+	Eigen::Matrix<floatPrec,3,1> dir1 = lU1.head(3), m1 = lU1.tail(3);
+	Eigen::Matrix<floatPrec,3,1> dir2 = lU2.head(3), m2 = lU2.tail(3);
+	Eigen::Matrix<floatPrec,3,1> dir3 = lU3.head(3), m3 = lU3.tail(3);
+	Eigen::Matrix<floatPrec,3,1> dir4 = lU4.head(3), m4 = lU4.tail(3);
+
+	// find closest points on the lines
+	// frame A
+	Eigen::Matrix<floatPrec,3,1> n = dir1.cross(dir3);
+	Eigen::Matrix<floatPrec,3,1> p1 = dir1.cross(m1);
+	Eigen::Matrix<floatPrec,3,1> p2 = dir3.cross(m3);
+	Eigen::Matrix<floatPrec,3,1> n2 = dir3.cross(n);
+	Eigen::Matrix<floatPrec,3,1> n1 = dir1.cross(n);
+	Eigen::Matrix<floatPrec,3,1> c1 = p1 + (p2-p1).dot(n2)/(dir1.dot(n2))*dir1;
+	Eigen::Matrix<floatPrec,4,4> Tv1 = Eigen::Matrix<floatPrec,4,4>::Identity();
+	Tv1.topRightCorner(3,1) = c1;
+	Eigen::Matrix<floatPrec,6,6> TvL1 = Eigen::Matrix<floatPrec,6,6>::Identity();
+	TvL1.block(3,0,3,3) = -getSkew<floatPrec>(c1);
+	// frame B
+	n = dir2.cross(dir4);
+	p1 = dir2.cross(m2);
+	p2 = dir4.cross(m4);
+	n2 = dir4.cross(n);
+	n1 = dir2.cross(n);
+	c1 = p1 + (p2-p1).dot(n2)/(dir2.dot(n2))*dir2;
+	Eigen::Matrix<floatPrec,4,4> Tv2 = Eigen::Matrix<floatPrec,4,4>::Identity();
+	Tv2.topRightCorner(3,1) = c1;
+	Eigen::Matrix<floatPrec,6,6> TvL2 = Eigen::Matrix<floatPrec,6,6>::Identity();
+	TvL2.block(3,0,3,3) = -getSkew<floatPrec>(c1);
+
+	// transform lines
+	Eigen::Matrix<floatPrec,6,1> lv3 = TvL1*lU3;
+	Eigen::Matrix<floatPrec,6,1> lv4 = TvL2*lU4;
+
+	// rotate to align x axis with c1 c2
+	dir3 = lv3.head(3); m3 = lv3.tail(3);
+	dir4 = lv4.head(3); m4 = lv4.tail(3); 
+	p1 = dir3.cross(m3);
+	p2 = dir4.cross(m4);
+	floatPrec alpha1 = atan2(p1(1),p1(0));
+	floatPrec alpha2 = atan2(p2(1),p2(0));
+	Eigen::Matrix<floatPrec,3,3> V1, V2;
+	V1 << cos(alpha1),sin(alpha1),0,-sin(alpha1),cos(alpha1),0,0,0,1;
+	V2 << cos(alpha2),sin(alpha2),0,-sin(alpha2),cos(alpha2),0,0,0,1;
+	Eigen::Matrix<floatPrec,4,4> TV1 = Eigen::Matrix<floatPrec,4,4>::Identity();
+	TV1.topLeftCorner(3,3) = V1;
+	Eigen::Matrix<floatPrec,4,4> TV2 = Eigen::Matrix<floatPrec,4,4>::Identity();
+	TV2.topLeftCorner(3,3) = V2;
+
+	Eigen::Matrix<floatPrec,4,4> estTrans = TU2.inverse()*Tv2.inverse()*TV2.inverse()*TV1*Tv1*TU1;
+	// std::cout << estTrans << std::endl;
+	out.push_back(estTrans);
+
+	return out;
+}
+
+// Solver for the case of 1 line correspondence and 2 line intersections
+template std::vector<Eigen::Matrix<float, 4, 4>> solver1M2L(
+	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lCPair);
+
+template std::vector<Eigen::Matrix<double, 4, 4>> solver1M2L(
+	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lCPair);
+
+template <typename floatPrec>
+std::vector<Eigen::Matrix<floatPrec, 4, 4>> solver1M2L(
+	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lCPair){
+	
+	// check input vectors size
+	if(lCPair.size() < 1 && lPair.size() < 2){
+		std::cerr << "Solver 1M2L requires at least 1 line correspondence and 2 line intersections!" << std::endl;
+		exit(-1);
+	}
+
+	std::vector<Eigen::Matrix<floatPrec,4,4>> out;
+
+	// get lines in plucker coordinates
+	std::vector<Eigen::Matrix<floatPrec,6,1>> lines1 = getPluckerCoord(lCPair[0]);
+	std::vector<Eigen::Matrix<floatPrec,6,1>> lines2 = getPluckerCoord(lPair[0]);
+	std::vector<Eigen::Matrix<floatPrec,6,1>> lines3 = getPluckerCoord(lPair[1]);
+	
+
+	// move frames to first line and z axis with its direction
+	std::vector<Eigen::Matrix<floatPrec,4,4>> trans = getPredefinedTransformations1M1Q(lines1[0],lines1[1]);
+	Eigen::Matrix<floatPrec,4,4> TU1 = trans[0], TU2 = trans[1];
+	Eigen::Matrix<floatPrec,6,6> TUL1 = Eigen::Matrix<floatPrec,6,6>::Identity(), TUL2 = Eigen::Matrix<floatPrec,6,6>::Identity();
+	TUL1.topLeftCorner(3,3) = TU1.topLeftCorner(3,3);
+	TUL1.block(3,3,3,3) = TU1.topLeftCorner(3,3);
+	TUL1.block(3,0,3,3) = -getSkew<floatPrec>(TU1.topRightCorner(3,1))*TU1.topLeftCorner(3,3);
+	TUL2.topLeftCorner(3,3) = TU2.topLeftCorner(3,3);
+	TUL2.block(3,3,3,3) = TU2.topLeftCorner(3,3);
+	TUL2.block(3,0,3,3) = -getSkew<floatPrec>(TU2.topRightCorner(3,1))*TU2.topLeftCorner(3,3);
+
+	// transform lines to new frame
+	Eigen::Matrix<floatPrec,6,1> lU1 = TUL1*lines1[0];
+	Eigen::Matrix<floatPrec,6,1> lU2 = TUL2*lines1[1];
+	Eigen::Matrix<floatPrec,6,1> lU3 = TUL1*lines2[0];
+	Eigen::Matrix<floatPrec,6,1> lU4 = TUL2*lines2[1];
+	Eigen::Matrix<floatPrec,6,1> lU5 = TUL1*lines3[0];
+	Eigen::Matrix<floatPrec,6,1> lU6 = TUL2*lines3[1];
+
+	// define coeffs
+	floatPrec l11 = lU3(0),l12 = lU3(1),l13 = lU3(2),l14 = lU3(3),l15 = lU3(4),l16 = lU3(5);
+	floatPrec l21 = lU5(0),l22 = lU5(1),l23 = lU5(2),l24 = lU5(3),l25 = lU5(4),l26 = lU5(5);
+	floatPrec m11 = lU4(0),m12 = lU4(1),m13 = lU4(2),m14 = lU4(3),m15 = lU4(4),m16 = lU4(5);
+	floatPrec m21 = lU6(0),m22 = lU6(1),m23 = lU6(2),m24 = lU6(3),m25 = lU6(4),m26 = lU6(5);
+
+	floatPrec a = l11*l21*m14*m22 - l11*l21*m12*m24 - l11*l22*m14*m21 - l11*l24*m12*m21 + l12*l21*m11*m24 + l12*l24*m11*m21 + l14*l21*m11*m22 - l14*l22*m11*m21 - l11*l22*m12*m25 - l11*l25*m12*m22 + l12*l21*m15*m22     + l12*l22*m11*m25 - l12*l22*m15*m21 + l12*l25*m11*m22 + l15*l21*m12*m22 - l15*l22*m12*m21 + l11*l23*m12*m26 + l11*l26*m12*m23 - l12*l23*m11*m26 - l12*l26*m11*m23 - l13*l21*m16*m22 + l13*l22*m16*m21 - l16*l21*m13*m22 + l16*l22*m13*m21;
+	floatPrec b = 2*l11*l21*m14*m21 - 2*l11*l21*m11*m24 - 2*l11*l24*m11*m21 + 2*l14*l21*m11*m21 + 2*l11*l21*m12*m25 - 2*l11*l21*m15*m22 - 2*l11*l22*m11*m25 - 2*l11*l22*m12*m24 + 2*l11*l22*m14*m22 + 2*l11*l22*m15*m21 + 2*l11*l24*m12*m22 - 2*l11*l25*m11*m22 - 2*l11*l25*m12*m21 - 2*l12*l21*m11*m25 - 2*l12*l21*m12*m24 + 2*l12*l21*m14*m22 + 2*l12*l21*m15*m21 + 2*l12*l22*m11*m24 - 2*l12*l22*m14*m21 - 2*l12*l24*m11*m22 - 2*l12*l24*m12*m21 + 2*l12*l25*m11*m21 - 2*l14*l21*m12*m22 + 2*l14*l22*m11*m22 + 2*l14*l22*m12*m21 + 2*l15*l21*m11*m22 + 2*l15*l21*m12*m21 - 2*l15*l22*m11*m21 + 2*l11*l23*m11*m26 + 2*l11*l26*m11*m23 - 2*l12*l22*m12*m25 + 2*l12*l22*m15*m22 - 2*l12*l25*m12*m22 - 2*l13*l21*m16*m21 + 2*l15*l22*m12*m22 - 2*l16*l21*m13*m21 + 2*l12*l23*m12*m26 + 2*l12*l26*m12*m23 - 2*l13*l22*m16*m22 - 2*l16*l22*m13*m22;
+	floatPrec c = 4*l11*l21*m11*m25 + 2*l11*l21*m12*m24 - 2*l11*l21*m14*m22 - 4*l11*l21*m15*m21 - 4*l11*l22*m11*m24 + 2*l11*l22*m14*m21 + 4*l11*l24*m11*m22 + 2*l11*l24*m12*m21 - 4*l11*l25*m11*m21 - 2*l12*l21*m11*m24 + 4*l12*l21*m14*m21 - 2*l12*l24*m11*m21 - 2*l14*l21*m11*m22 - 4*l14*l21*m12*m21 + 2*l14*l22*m11*m21 + 4*l15*l21*m11*m21 + 2*l11*l22*m12*m25 - 4*l11*l22*m15*m22 + 2*l11*l25*m12*m22 + 4*l12*l21*m12*m25 - 2*l12*l21*m15*m22 - 2*l12*l22*m11*m25 - 4*l12*l22*m12*m24 + 4*l12*l22*m14*m22 + 2*l12*l22*m15*m21 + 4*l12*l24*m12*m22 - 2*l12*l25*m11*m22 - 4*l12*l25*m12*m21 - 4*l14*l22*m12*m22 - 2*l15*l21*m12*m22 + 4*l15*l22*m11*m22 + 2*l15*l22*m12*m21; 
+	floatPrec d = 2*l11*l21*m11*m24 - 2*l11*l21*m14*m21 + 2*l11*l24*m11*m21 - 2*l14*l21*m11*m21 - 2*l11*l21*m12*m25 + 2*l11*l21*m15*m22 + 2*l11*l22*m11*m25 + 2*l11*l22*m12*m24 - 2*l11*l22*m14*m22 - 2*l11*l22*m15*m21 - 2*l11*l24*m12*m22 + 2*l11*l25*m11*m22 + 2*l11*l25*m12*m21 + 2*l12*l21*m11*m25 + 2*l12*l21*m12*m24 - 2*l12*l21*m14*m22 - 2*l12*l21*m15*m21 - 2*l12*l22*m11*m24 + 2*l12*l22*m14*m21 + 2*l12*l24*m11*m22 + 2*l12*l24*m12*m21 - 2*l12*l25*m11*m21 + 2*l14*l21*m12*m22 - 2*l14*l22*m11*m22 - 2*l14*l22*m12*m21 - 2*l15*l21*m11*m22 - 2*l15*l21*m12*m21 + 2*l15*l22*m11*m21 + 2*l11*l23*m11*m26 + 2*l11*l26*m11*m23 + 2*l12*l22*m12*m25 - 2*l12*l22*m15*m22 + 2*l12*l25*m12*m22 - 2*l13*l21*m16*m21 - 2*l15*l22*m12*m22 - 2*l16*l21*m13*m21 + 2*l12*l23*m12*m26 + 2*l12*l26*m12*m23 - 2*l13*l22*m16*m22 - 2*l16*l22*m13*m22;
+	floatPrec e = l11*l21*m14*m22 - l11*l21*m12*m24 - l11*l22*m14*m21 - l11*l24*m12*m21 + l12*l21*m11*m24 + l12*l24*m11*m21 + l14*l21*m11*m22 - l14*l22*m11*m21 - l11*l22*m12*m25 - l11*l25*m12*m22 + l12*l21*m15*m22 + l12*l22*m11*m25 - l12*l22*m15*m21 + l12*l25*m11*m22 + l15*l21*m12*m22 - l15*l22*m12*m21 - l11*l23*m12*m26 - l11*l26*m12*m23 + l12*l23*m11*m26 + l12*l26*m11*m23 + l13*l21*m16*m22 - l13*l22*m16*m21 + l16*l21*m13*m22 - l16*l22*m13*m21;
+
+	// get the roots (will be sTheta)
+	Eigen::Matrix<floatPrec, 5, 1> factors;
+	factors(0, 0) = a;
+	factors(1, 0) = b;
+	factors(2, 0) = c;
+	factors(3, 0) = d;
+	factors(4, 0) = e;
+	vector<floatPrec> realRoots = o4_roots(factors);
+	for(size_t iter = 0; iter < realRoots.size(); iter++){
+		floatPrec s = realRoots[iter];
+		
+		floatPrec tz = -(l11*m14 + l14*m11 + l12*m15 + l15*m12 + l13*m16 + l16*m13 - l11*m14*s*s - l14*m11*s*s - l12*m15*s*s - l15*m12*s*s + l13*m16*s*s + l16*m13*s*s + 2*l11*m15*s - 2*l12*m14*s + 2*l14*m12*s - 2*l15*m11*s)/(l12*m11 - l11*m12 + l11*m12*s*s - l12*m11*s*s + 2*l11*m11*s + 2*l12*m12*s);
+
+		Eigen::Matrix<floatPrec,3,3> R;
+		R << 1-s*s, -2*s, 0, 2*s, 1-s*s, 0, 0, 0, 1+s*s;
+		R = 1/(1+s*s)*R;
+		Eigen::Matrix<floatPrec,3,1> t;
+		t << 0,0,tz;
+		Eigen::Matrix<floatPrec,4,4> Tw = Eigen::Matrix<floatPrec,4,4>::Identity(), sol;
+		Tw.topLeftCorner(3,3) = R;
+		Tw.topRightCorner(3,1) = t;
+		sol = TU2.inverse()*Tw*TU1;
+		out.push_back(sol);
+	}
+
+	return out;
+}
+
+// Solver for the case of 1 line and 1 plane correspondence
+template std::vector<Eigen::Matrix<float, 4, 4>> solver1M1P(
+	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lCPair);
+
+template std::vector<Eigen::Matrix<double, 4, 4>> solver1M1P(
+	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lCPair);
+
+template <typename floatPrec>
+std::vector<Eigen::Matrix<floatPrec, 4, 4>> solver1M1P(
+	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> ptPair,
+	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> plPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair,
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lCPair){
+
+	// check input vectors size
+	if(lCPair.size() < 1 && plPair.size() < 2){
+		std::cerr << "Solver 1M1P requires at least 1 line and 1 plane correspondence!" << std::endl;
+		exit(-1);
+	}
+
+	std::vector<Eigen::Matrix<floatPrec,4,4>> out;
+	out.clear();
+
+	// parse inputs
+	Eigen::Matrix<floatPrec, 4, 1> Pi, Nu;
+	Pi = plPair[0].first; Nu = plPair[0].second;
+	// get lines in plucker coordinates
+	std::vector<Eigen::Matrix<floatPrec,6,1>> lines1 = getPluckerCoord(lCPair[0]);
+
+	// check if line and plane are parallel
+	if(abs(Pi.head(3).dot(lines1[0].head(3))) < 1e-6){
+		// std::cout << Pi.head(3).transpose() << "   " << lines1[0].head(3).transpose() << std::endl; 
+		// std::cout << lCPair[0].first.second.head(3).transpose() << "  " << lCPair[0].first.first.head(3).transpose() << std::endl;
+		// std::cerr << "Solver 1M1P: The line and plane cannot be parallel!" << std::endl;
+		return out;
+		// exit(-1);
+	}
+
+	// get the predefined transformation matrices
+	vector<Matrix<floatPrec, 4, 4>> predTrans = getPredefinedTransformations1Plane3Line<floatPrec>(Pi, Nu);
+	Matrix<floatPrec, 4, 4> TU2 = predTrans.back();
+	predTrans.pop_back();
+	Matrix<floatPrec, 4, 4> TU1 = predTrans.back();
+	predTrans.pop_back();
+
+	Eigen::Matrix<floatPrec,6,6> TUL1 = Eigen::Matrix<floatPrec,6,6>::Identity(), TUL2 = Eigen::Matrix<floatPrec,6,6>::Identity();
+	TUL1.topLeftCorner(3,3) = TU1.topLeftCorner(3,3);
+	TUL1.block(3,3,3,3) = TU1.topLeftCorner(3,3);
+	TUL1.block(3,0,3,3) = -getSkew<floatPrec>(TU1.topRightCorner(3,1))*TU1.topLeftCorner(3,3);
+	TUL2.topLeftCorner(3,3) = TU2.topLeftCorner(3,3);
+	TUL2.block(3,3,3,3) = TU2.topLeftCorner(3,3);
+	TUL2.block(3,0,3,3) = -getSkew<floatPrec>(TU2.topRightCorner(3,1))*TU2.topLeftCorner(3,3);
+
+	// transform features
+	Eigen::Matrix<floatPrec,6,1> lU1 = TUL1*lines1[0];
+	Eigen::Matrix<floatPrec,6,1> lU2 = TUL2*lines1[1];
+	Eigen::Matrix<floatPrec,4,1> PiU = TU1.transpose().inverse()*Pi;
+	Eigen::Matrix<floatPrec,4,1> NuU = TU2.transpose().inverse()*Nu;
+	
+	// get direction and moment vectors
+	Eigen::Matrix<floatPrec,3,1> dir1 = lU1.head(3), m1 = lU1.tail(3);
+	Eigen::Matrix<floatPrec,3,1> dir2 = lU2.head(3), m2 = lU2.tail(3);
+	Eigen::Matrix<floatPrec,3,1> n1 = PiU.head(3), n2 = NuU.head(3);
+
+	// compute intersection line with plane
+	Eigen::Matrix<floatPrec,3,1> p1 = (n1.cross(m1) - PiU(3)*dir1)/(n1.dot(dir1));
+	Eigen::Matrix<floatPrec,3,1> p2 = (n2.cross(m2) - NuU(3)*dir2)/(n2.dot(dir2));
+
+	Matrix<floatPrec, 4, 4> Tu1 = Matrix<floatPrec, 4, 4>::Identity();
+	Tu1.topRightCorner(3,1) = p1;
+	Matrix<floatPrec, 4, 4> Tu2 = Matrix<floatPrec, 4, 4>::Identity();
+	Tu2.topRightCorner(3,1) = p2;
+	Eigen::Matrix<floatPrec,6,6> TuL1 = Eigen::Matrix<floatPrec,6,6>::Identity(), TuL2 = Eigen::Matrix<floatPrec,6,6>::Identity();
+	TuL1.block(3,0,3,3) = -getSkew<floatPrec>(p1);
+	TuL2.block(3,0,3,3) = -getSkew<floatPrec>(p2);
+
+	// transform features
+	Eigen::Matrix<floatPrec,6,1> lu1 = TuL1*lU1;
+	Eigen::Matrix<floatPrec,6,1> lu2 = TuL2*lU2;
+	Eigen::Matrix<floatPrec,4,1> Piu = Tu1.transpose().inverse()*PiU;
+	Eigen::Matrix<floatPrec,4,1> Nuu = Tu2.transpose().inverse()*NuU;
+
+	// align x axis wiht projection of line direction to plane
+	// project line direction to plane
+	dir1 = lu1.head(3); m1 = lu1.tail(3);
+	dir2 = lu2.head(3); m2 = lu2.tail(3);
+	n1 = Piu.head(3); n2 = Nuu.head(3);
+	// frame A
+	Eigen::Matrix<floatPrec,3,1> w = (dir1 - dir1.dot(n1)*n1).normalized();
+	floatPrec alpha1 = atan2(w(1),w(0));
+	Eigen::Matrix<floatPrec,3,3> V1;
+	V1 << cos(alpha1),sin(alpha1),0,-sin(alpha1),cos(alpha1),0,0,0,1;
+	Eigen::Matrix<floatPrec,4,4> TV1 = Eigen::Matrix<floatPrec,4,4>::Identity();
+	TV1.topLeftCorner(3,3) = V1;
+	// frame B
+	Eigen::Matrix<floatPrec,3,1> w2 = (dir2 - dir2.dot(n2)*n2).normalized();
+	floatPrec alpha2 = atan2(w2(1),w2(0));
+	Eigen::Matrix<floatPrec,3,3> V2;
+	V2 << cos(alpha2),sin(alpha2),0,-sin(alpha2),cos(alpha2),0,0,0,1;
+	Eigen::Matrix<floatPrec,4,4> TV2 = Eigen::Matrix<floatPrec,4,4>::Identity();
+	TV2.topLeftCorner(3,3) = V2;
+
+	Eigen::Matrix<floatPrec,4,4> sol = TU2.inverse()*Tu2.inverse()*TV2.inverse()*TV1*Tu1*TU1;
+	out.push_back(sol);
+
+	return out;
+}
+
+
+
 // #######################################################################################################
 // Aux functions...
+// get Plucker coordinates from pair of pair of points
+template vector<Matrix<float, 6,1>> getPluckerCoord(std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> lPair);
+
+template vector<Matrix<double, 6,1>> getPluckerCoord(std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> lPair);
+
+template <typename floatPrec>
+vector<Matrix<floatPrec, 6,1>> getPluckerCoord(std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> lPair){
+
+	// get line normalized direction
+	Eigen::Matrix<floatPrec,3,1> dir1 = lPair.first.second.head(3) - lPair.first.first.head(3);
+	Eigen::Matrix<floatPrec,3,1> dir2 = lPair.second.second.head(3) - lPair.second.first.head(3);
+	dir1.normalize();
+	dir2.normalize();
+	// get moment vectors
+	Eigen::Matrix<floatPrec,3,1> p1 = lPair.first.first.head(3);
+	Eigen::Matrix<floatPrec,3,1> m1 = dir1.cross(p1);
+	Eigen::Matrix<floatPrec,3,1> p2 = lPair.second.first.head(3);
+	Eigen::Matrix<floatPrec,3,1> m2 = dir2.cross(p2);
+	// get plucker coordinates
+	Eigen::Matrix<floatPrec,6,1> l1;
+	l1.head(3) = dir1; l1.tail(3) = m1;
+	Eigen::Matrix<floatPrec,6,1> l2;
+	l2.head(3) = dir2; l2.tail(3) = m2;
+
+	vector<Matrix<floatPrec, 6,1>> lines;
+	lines.push_back(l1); lines.push_back(l2);
+
+	return lines;
+}
+
+// Get the predifined transformations for the case 1 point and 1 line correspondence
+template <typename floatPrec>
+vector<Matrix<floatPrec, 4,4>> getPredefinedTransformations1M1Q(Matrix<floatPrec, 6,1> l1, Matrix<floatPrec, 6,1> l2){
+
+	// get closest point --in the line-- to the origin
+	Eigen::Matrix<floatPrec,3,1> dir1 = l1.head(3), m1 = l1.tail(3);
+	Eigen::Matrix<floatPrec,3,1> dir2 = l2.head(3), m2 = l2.tail(3);
+	Eigen::Matrix<floatPrec,3,1> x1 = dir1.cross(m1);
+	Eigen::Matrix<floatPrec,3,1> x2 = dir2.cross(m2);
+	
+	// get transform to translate frames to the line
+	Eigen::Matrix<floatPrec,3,1> u1 = x1 - x1.transpose()*dir1*dir1;
+	Eigen::Matrix<floatPrec,3,1> u2 = x2 - x2.transpose()*dir2*dir2;
+	Eigen::Matrix<floatPrec,4,4> Tu1 = Eigen::Matrix<floatPrec,4,4>::Identity(), Tu2 = Eigen::Matrix<floatPrec,4,4>::Identity();
+	Tu1.topRightCorner(3,1) = u1;
+	Tu2.topRightCorner(3,1) = u2;
+	Eigen::Matrix<floatPrec,6,6> TuL1 = Eigen::Matrix<floatPrec,6,6>::Identity(), TuL2 = Eigen::Matrix<floatPrec,6,6>::Identity();
+	TuL1.block(3,0,3,3) = -getSkew<floatPrec>(u1);
+	TuL2.block(3,0,3,3) = -getSkew<floatPrec>(u2);
+
+	// transform point and line to new ref
+	Eigen::Matrix<floatPrec,6,1> lu1 = TuL1*l1;
+	Eigen::Matrix<floatPrec,6,1> lu2 = TuL2*l2;
+
+	//align z axis with line direction
+	Eigen::Matrix<floatPrec,3,1> U1_3 = lu1.head(3), U2_3 = lu2.head(3);
+	Eigen::Matrix<floatPrec,3,1> ex, ey;
+	ex << 1,0,0; ey << 0,1,0;
+	Eigen::Matrix<floatPrec,3,1> U1_1, U2_1;
+	// frame A
+	Eigen::Matrix<floatPrec,3,1> U1_3M = ey.cross(U1_3);
+	Eigen::Matrix<floatPrec,3,1> U1_3P = ex.cross(U1_3);
+	if(U1_3M.norm() > U1_3P.norm())
+		U1_1 = U1_3M.normalized();
+	else
+		U1_1 = U1_3P.normalized();
+	Eigen::Matrix<floatPrec,3,3> U1;
+	U1.row(0) = U1_1.transpose();
+	U1.row(1) = U1_3.cross(U1_1).transpose();
+	U1.row(2) = U1_3.transpose();
+	Eigen::Matrix<floatPrec,4,4> TU1 = Eigen::Matrix<floatPrec,4,4>::Identity();
+	TU1.topLeftCorner(3,3) = U1;
+	Eigen::Matrix<floatPrec,6,6> TUL1 = Eigen::Matrix<floatPrec,6,6>::Identity();
+	TUL1.topLeftCorner(3,3) = U1; TUL1.block(3,3,3,3) = U1;
+	// frame B
+	Eigen::Matrix<floatPrec,3,1> U2_3M = ey.cross(U2_3);
+	Eigen::Matrix<floatPrec,3,1> U2_3P = ex.cross(U2_3);
+	if(U2_3M.norm() > U2_3P.norm())
+		U2_1 = U2_3M.normalized();
+	else
+		U2_1 = U2_3P.normalized();
+	Eigen::Matrix<floatPrec,3,3> U2;
+	U2.row(0) = U2_1.transpose();
+	U2.row(1) = U2_3.cross(U2_1).transpose();
+	U2.row(2) = U2_3.transpose();
+	Eigen::Matrix<floatPrec,4,4> TU2 = Eigen::Matrix<floatPrec,4,4>::Identity();
+	TU2.topLeftCorner(3,3) = U2;
+	Eigen::Matrix<floatPrec,6,6> TUL2 = Eigen::Matrix<floatPrec,6,6>::Identity();
+	TUL2.topLeftCorner(3,3) = U2; TUL2.block(3,3,3,3) = U2;
+
+	Eigen::Matrix<floatPrec,4,4> TU = TU1*Tu1;
+	Eigen::Matrix<floatPrec,4,4> TU_B = TU2*Tu2;
+
+	std::vector<Eigen::Matrix<floatPrec,4,4>> trans;
+	trans.push_back(TU);
+	trans.push_back(TU_B);
+
+	return trans;
+
+}
+
 // Get the predifined transformations for the case 2 points and 1 line
 template <typename floatPrec>
 vector<Matrix<floatPrec, 4,4>> getPredefinedTransformations2Points1Line(Matrix<floatPrec, 4,1> P1, Matrix<floatPrec, 4,1> P2, Matrix<floatPrec, 4,1> P1_B, Matrix<floatPrec, 4,1> P2_B)

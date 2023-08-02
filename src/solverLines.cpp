@@ -96,20 +96,23 @@ template Eigen::Matrix<double, 3,3> cayley2rot<double>( Eigen::Matrix<double, 3,
 template std::vector<Eigen::Matrix<float,4,4>> solver6L<float>(
   std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair
+	std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lPair,
+  std::vector<std::pair<std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>,std::pair<Eigen::Matrix<float,4,1>, Eigen::Matrix<float,4,1>>>> lCPair
 );
 
 template std::vector<Eigen::Matrix<double,4,4>> solver6L<double>(
   std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair
+	std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lPair,
+  std::vector<std::pair<std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>,std::pair<Eigen::Matrix<double,4,1>, Eigen::Matrix<double,4,1>>>> lCPair
 );
 
 template <typename floatPrec>
 std::vector<Eigen::Matrix<floatPrec,4,4>> solver6L(
   std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> ptPair,
 	std::vector<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>> plPair,
-	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair
+	std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lPair,
+  std::vector<std::pair<std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>,std::pair<Eigen::Matrix<floatPrec,4,1>, Eigen::Matrix<floatPrec,4,1>>>> lCPair
   )
 {
 

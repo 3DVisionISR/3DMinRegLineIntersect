@@ -8,7 +8,7 @@
 
 #include <vector>
 #include <complex>
-#include <solversPoints.hpp>
+#include <solverPoints.hpp>
 #include <utils.hpp>
 
 using namespace Eigen;
@@ -19,19 +19,22 @@ using namespace std;
 template vector<Matrix<float,4,4>> solver3Q<float>(
     vector<pair<Matrix<float,4,1>, Matrix<float,4,1>>> ptPair,
 	vector<pair<Matrix<float,4,1>, Matrix<float,4,1>>> plPair,
-	vector<pair<pair<Matrix<float,4,1>, Matrix<float,4,1>>,pair<Matrix<float,4,1>, Matrix<float,4,1>>>> lPair
+	vector<pair<pair<Matrix<float,4,1>, Matrix<float,4,1>>,pair<Matrix<float,4,1>, Matrix<float,4,1>>>> lPair,
+    vector<pair<pair<Matrix<float,4,1>, Matrix<float,4,1>>,pair<Matrix<float,4,1>, Matrix<float,4,1>>>> lCPair
 );
 template vector<Matrix<double,4,4>> solver3Q<double>(
     vector<pair<Matrix<double,4,1>, Matrix<double,4,1>>> ptPair,
 	vector<pair<Matrix<double,4,1>, Matrix<double,4,1>>> plPair,
-	vector<pair<pair<Matrix<double,4,1>, Matrix<double,4,1>>,pair<Matrix<double,4,1>, Matrix<double,4,1>>>> lPair
+	vector<pair<pair<Matrix<double,4,1>, Matrix<double,4,1>>,pair<Matrix<double,4,1>, Matrix<double,4,1>>>> lPair,
+    vector<pair<pair<Matrix<double,4,1>, Matrix<double,4,1>>,pair<Matrix<double,4,1>, Matrix<double,4,1>>>> lCPair
 );
 
 template <typename floatPrec>
 vector<Matrix<floatPrec,4,4>> solver3Q(
     vector<pair<Matrix<floatPrec,4,1>, Matrix<floatPrec,4,1>>> ptPair,
 	vector<pair<Matrix<floatPrec,4,1>, Matrix<floatPrec,4,1>>> plPair,
-	vector<pair<pair<Matrix<floatPrec,4,1>, Matrix<floatPrec,4,1>>,pair<Matrix<floatPrec,4,1>, Matrix<floatPrec,4,1>>>> lPair
+	vector<pair<pair<Matrix<floatPrec,4,1>, Matrix<floatPrec,4,1>>,pair<Matrix<floatPrec,4,1>, Matrix<floatPrec,4,1>>>> lPair,
+    vector<pair<pair<Matrix<floatPrec,4,1>, Matrix<floatPrec,4,1>>,pair<Matrix<floatPrec,4,1>, Matrix<floatPrec,4,1>>>> lCPair
 ){
 
     vector<Matrix<floatPrec, 4,4>> estSolutions;

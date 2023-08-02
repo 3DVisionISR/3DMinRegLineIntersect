@@ -20,6 +20,16 @@ month = {June},
 year = {2020}
 }
 ```
+and
+```
+@article{Mateus_2023_IJCV,
+  title={Fast and Accurate 3D Registration from Line Intersection Constraints},
+  author={Mateus, Andr{\'e} and Ranade, Siddhant and Ramalingam, Srikumar and Miraldo, Pedro},
+  journal={International Journal of Computer Vision (IJCV)},
+  pages={1--26},
+  year={2023}
+}
+```
 
 For solverPoints.cpp/hpp file, please cite:
 ```
@@ -40,4 +50,19 @@ For solverLines.cpp/hpp file, please cite:
   year={2005},
   booktitle={OMNIVIS}
 }
+```
+
+### Build examples
+
+We provide examples on how to use the solvers.
+The only dependency is Eigen3, to install it run 
+```
+sudo apt-get install libeigen3-dev
+```
+Then, compile the code
+```
+cd 3DMinRegLineIntersect
+mkdir build && cd build
+cmake ..
+make -j$(nthreads)
 ```
