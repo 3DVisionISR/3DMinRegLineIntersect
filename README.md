@@ -1,9 +1,9 @@
 # Minimal Solvers for 3D Scan Alignment With Pairs of Intersecting Lines
-Andre Mateus<sup>1</sup>, Srikumar Ramalingam<sup>2</sup>, and Pedro Miraldo<sup>1</sup>
+Andre Mateus<sup>1</sup>, Srikumar Ramalingam<sup>2</sup>, and Pedro Miraldo<sup>3</sup>
 
-<sup>1</sup>Instituto Superior Tecnico, Lisboa <sup>2</sup>Google Research, NY 
-<br />
-E-Mail: {andre.mateus,pedro.miraldo}@tecnico.ulisboa.pt
+<sup>1</sup>Instituto Superior Tecnico, Lisboa <br>
+<sup>2</sup>Google Research, NYC<br>
+<sup>3</sup>Mitsubishi Electric Research Labs (MERL), Cambridge<br>
 
 
 <img src="imgs/fig0.gif" width="200" />
